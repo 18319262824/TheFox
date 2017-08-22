@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			*{margin: 0;padding: 0;}
+			html,body{
+				width: 100%;
+				height: 100%;
+			}
+			.wrap{
+				width: 100%;
+				height: 100%;
+				margin: auto;
+				/*max-height: 800px;*/
+				max-width: 640px;
+				background: url(img/game_bg.jpg);
+				background-size:100% 100%;
+				position: relative;
+			}
+			.wrap div{
+				width: 33.75%;
+				height: 21.041667%;
+				position: absolute;
+				/*疑点1*/
+				background-size: 1000% 100%;
+				display: none;
+				background-image:url(img/h.png) ;
+			}
+			.wrap div:nth-child(1){
+				left: 30%;top: 24%;
+			}
+			.wrap div:nth-child(2){
+				left: 5%;top: 33%;
+			}
+			.wrap div:nth-child(3){
+				left: 58%;top: 29%;
+			}
+			.wrap div:nth-child(4){
+				left: 32%;top: 39%;
+			}
+			.wrap div:nth-child(5){
+				left: 5%;top: 45%;
+			}
+			.wrap div:nth-child(6){
+				left: 62%;top: 43%;
+			}
+			.wrap div:nth-child(7){
+				left: 37%;top: 56%;
+			}
+			.wrap div:nth-child(8){
+				left: 9%;top: 60%;
+			}
+			.wrap div:nth-child(9){
+				left: 64%;top: 61%;
+			}
+			.wrap p{
+				width: 56.25%;
+				height: 3.33333%;
+				left: 19.6875%;
+				top: 13.75%;
+				position: absolute;
+				background: url(img/progress.png)no-repeat;
+				background-size: 100% 100%;
+				border-radius:15px;
+				overflow: hidden;
+			}
+			span{
+				position: absolute;
+				font-size: 30px;
+				color: white;
+				left: 19%;
+				top: 4%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<p></p>
+			<span>0</span>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var div = document.querySelectorAll(".wrap div");
+		var time = document.querySelector("p");
+		var score = document.querySelector("span");
+		var rndtimer = null;
+		var fen = 0;
+		function up(obj){
+			var i = 0;
+			obj.style.display = "block";//让div显示
+			obj.movebol = true;
+			clearInterval(obj.timer);
+			obj.timer = setInterval(function(){
+				i++;
+				if(i >= 5){
+					clearInterval(obj.timer);
+					obj.timer2 = setTimeout(function(){
+						down(obj);
+					},300)
+				}
+				obj.style.backgroundPosition = -i*100+"% 0px";//疑点2
+			},50)
+		}
+
+		function down(obj){
+			var i = 5;
+			clearInterval(obj.timer);
+			obj.timer = setInterval(function(){
+				i--;
+				if(i <= 0){
+					clearInterval(obj.timer);
+					obj.movebol = false;//疑点3
+					obj.dabol = false;
+					obj.style.display = "none";
+				}
+				obj.style.backgroundPosition = -i*100+"% 0px";
+			},50)
+		}
+		
+		function rndUp(){//有疑点
+			rndtimer = setInterval(function(){
+			 var rnd = Math.floor(Math.random()*div.length);
+			 if(div[rnd].movebol!=true){
+			 	var str = (Math.random()-0.6>0)?"x":"h";
+			 	div[rnd].xh = str;
+			 	div[rnd].style.backgroundImage = "url(img/"+str+".png)";
+			 	up(div[rnd]);
+			 }
+			},500)
+		}
+		  rndUp()
+		  
+		for(var i =0;i<div.length;i++){
+			div[i].onclick = function(){
+				if(this.dabol){return}
+				da(this);
+				if(this.xh == "h"){
+					fen += 10;
+				}else{
+					fen -= 10;
+				}
+				score.innerHTML = fen;
+			}
+		}
+		
+		function da(obj){
+			var i = 5;
+			obj.dabol = true;
+			clearInterval(obj.timer);
+			clearInterval(obj.timer2);
+			obj.timer = setInterval(function(){
+				i++;
+				if(i>=9){
+					clearInterval(obj.timer);
+					down(obj);
+				}
+				obj.style.backgroundPosition = -i*100+"% 0px";
+			},80)
+		}
+		timeFn(10)
+		
+	    function timeFn(s){
+	    	 var n = s;
+	    	 var timer = setInterval(function(){
+	    	 	n -= 0.005;
+	    	 	if(n <= 0){
+	    	 		clearInterval(timer);
+	    	 		clearInterval(rndtimer);
+	    	 	}
+	    	 	time.style.backgroundSize = n/s*100+"% 100%"
+	    	 },500)
+	    }
+	</script>
+</html>

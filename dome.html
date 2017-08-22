@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<title>Document</title>
+	<style type="text/css">
+	*{margin: 0;padding: 0;}
+	html,body{
+		width: 100%;
+		height: 100%;		
+	}
+	.wrap{
+		width: 100%;
+		height: 100%;
+		margin: auto;
+		/*最大宽度 */
+		max-width: 640px;
+		/*最大高度*/
+		max-height: 800px;
+		background: url(img/game_bg.jpg);
+		background-size: 100% 100%;
+		position: relative;
+	}
+
+	.wrap div{
+		width: 33.75%;
+		height: 21.041667%;
+		position: absolute;
+		background-size: 1000% 100%;
+		display: none;
+		background-image: url(img/h.png);
+
+	}
+	.wrap div:nth-child(1){
+		left: 30%;top: 24%;
+	}
+	.wrap div:nth-child(2){
+		left: 5%;top: 33%;
+	}
+	.wrap div:nth-child(3){
+		left: 58%;top: 29%;
+	}
+	.wrap div:nth-child(4){
+		left: 32%;top: 39%;
+	}
+	.wrap div:nth-child(5){
+		left: 5%;top: 45%;
+	}
+	.wrap div:nth-child(6){
+		left: 62%;top: 43%;
+	}
+	.wrap div:nth-child(7){
+		left: 37%;top: 56%;
+	}
+	.wrap div:nth-child(8){
+		left: 9%;top: 60%;
+	}
+	.wrap div:nth-child(9){
+		left: 64%;top: 61%;
+	}
+	.wrap p{
+		width: 56.25%;
+		height: 3.33333%;
+		left:19.6875%;
+		top: 13.75%;
+		position: absolute;
+		background: url(img/progress.png) no-repeat;
+		background-size: 100% 100%;
+		border-radius: 15px;
+		overflow: hidden;
+	}
+	span{
+		position: absolute;
+		font-size: 30px;
+		color: white;
+		left: 19%;
+		top: 4%;
+	}
+	</style>
+</head>
+<body>
+	<div class="wrap">		
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<p></p>	
+		<span>0</span>
+	</div>
+</body>
+<script type="text/javascript">	
+	//1、获取9个DIV，灰太狼
+	var div = document.querySelectorAll(".wrap div");
+	var time = document.querySelector("p");//时间条
+	var score = document.querySelector("span");//分数
+	var fen = 0;//记录分数
+	var rndtimer = null;//每一段事件随机出现一个灰太狼定时器变量
+
+	//2、灰太狼出来
+	function up(obj) {
+		var i = 0;//记录图片运动到第几个
+		obj.style.display = "block";//让div显示
+		obj.movebol = true;//判断这个洞是否有狼
+		clearInterval(obj.timer);//运动前清定时器
+		obj.timer = setInterval(function () { //开始运动给定时器
+			i++; //让图片往上运动
+			if (i>=5) {//当大于等于5时
+				clearInterval(obj.timer); //清定时器			
+				obj.timer2 = setTimeout(function () {//出来停一下在下去 下面引上
+					down(obj)
+				},300)			
+			}
+			obj.style.backgroundPosition = -i*100+"% 0px";//背景图
+		},50)
+	}1.
+	 //灰太狼下去的函数
+	function down(obj) {
+		var i = 5;//因为下去是从5开始的
+		clearInterval(obj.timer);
+		obj.timer = setInterval(function () {
+			i--;//让图片往下运动
+			if (i<=0) {//等于0停止
+				clearInterval(obj.timer);//清除定时器
+				obj.movebol = false;//记录下去了
+				obj.dabol = false;//记录被打结束了
+				obj.style.display = "none";
+			}
+			obj.style.backgroundPosition = -i*100+"% 0px";
+		},50)
+	}
+	//随机出现灰太狼函数
+	function rndUp() {
+		rndtimer = setInterval(function () {//多久出现一条狼
+			var rnd = Math.floor(Math.random()*div.length);//向下取整random()指0到1
+			if (div[rnd].movebol!=true) {//判断这个灰太狼出来了没有、有就不需要再执行出来
+				var str = (Math.random()-0.6>0)?"x":"h";//根据随机几率判断出现小灰灰还是灰太狼
+				
+           /*不管是灰太狼还是小灰灰都用自定义属性记载一下，因为等会要用来
+            表示击打后是增加分数（灰太狼）还是减少分数（小灰灰） */
+                                                     
+				div[rnd].xh = str;
+			 //根据随机数，如果是小灰灰或者是灰太狼替换对应的图片
+				div[rnd].style.backgroundImage="url(img/"+str+".png)";
+				up(div[rnd]);//执行出来函数
+			}			
+		},100)
+	}
+	rndUp()//开始随机出现灰太狼
+
+
+
+
+	//给每个DIV（灰太狼）加点击事件（打灰太狼）
+	for (var i = 0; i < div.length; i++) {
+		div[i].onclick = function () {
+			if (this.dabol) {return}//判断只能打一次，之后的点击就不能再打了
+			da(this);//打的动画函数
+			if (this.xh=="h") {//判断打的是谁
+				fen += 10;
+			}else{
+				fen -= 10;
+			}
+			score.innerHTML = fen;//显示分数
+		}
+	}
+	// 因为每个div都有点击事件，所以对击打灰太狼封装一个函数
+	function da(obj) {
+		var i = 5;
+		obj.dabol = true;//自定义一个属性：记录该div已经被击打过
+		clearInterval(obj.timer);
+		clearInterval(obj.timer2);
+		obj.timer = setInterval(function () {//跟上面原理一样
+			i++;
+			if (i>=9) {
+				clearInterval(obj.timer);
+				down(obj);//打完后下去
+			}
+			obj.style.backgroundPosition = -i*100+"% 0px";
+		},80)
+	}
+
+	timeFn(10)//开始倒计时
+
+
+	//开始倒计时函数
+	function timeFn(s) {
+		var n = s;
+		var timer = setInterval(function () {
+			n -= 0.05;
+			if (n<=0) {
+				clearInterval(timer);
+				clearInterval(rndtimer);
+			}			
+			time.style.backgroundSize =  n/s*100+"% 100%"
+		},500)
+	}	
+
+</script>
+</html>
+
+
+
